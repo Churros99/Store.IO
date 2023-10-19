@@ -7,18 +7,20 @@
     <h3> Our Products </h3>
     <div class="container my-3 mx-3">
         <ul class="list-unstyled d-flex">
+            {% for product in products %}
             <li>
                 <div class="card" style="width: 18rem;">
                     <div class="card-body">
-                        <h5 class="card-title"> Product title </h5>
-                        <p class="card-text">Description of the product</p>
+                        <h5 class="card-title">{{ product.title}} </h5>
+                        <p class="card-text">{{product.description}}</p>
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"> Product Price: $10 </li>
+                        <li class="list-group-item"> Product Price: ${{product.price}} </li>
                         <a href="#" class="card-link text-center my-2"> Buy product </a>
                     </ul>
                 </div>
             </li>
+            {%endfor%}
         </ul>
     </div>
 </div>
