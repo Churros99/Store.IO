@@ -1,15 +1,21 @@
 # imports
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 #  aaplication init
 app = Flask(__name__)
 
 #database Init
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SECRET_KEY'] = 'paswd'
 
 db = SQLAlchemy()
 db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 #databases tables
 class Product(db.Model):
@@ -20,6 +26,11 @@ class Product(db.Model):
     
     def __repr__(self):
         return f'<Product {self.title}>'
+    
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, promary_key=True)
+    username = db.Column(db.String(15), unique=True)
+    password = db.Column(db.String(80))
 
 # create tables
 with app.app_context():
@@ -53,6 +64,26 @@ def create_product():
     except Exception as inst:
         print(inst.args)
 
+@app.route('/products/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        product.title = request.form.get('title')
+        product.description = request.form.get('description')
+        product.price = request.form.get('price')
+        db.session.commit()
+        
+    return redirect(url_for('home'))
+
+@app.route('/products/delete/<int:id>', methods=['GET', 'POST'])
+def delete_product(id):
+    product = Product.query.get(id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+
+    return redirect(url_for('home'))
+    
 # run application
 if __name__ == '__main__':
     app.run(debug=True)
